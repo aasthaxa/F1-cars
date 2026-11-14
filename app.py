@@ -11,10 +11,6 @@ st.set_page_config(
     page_icon="🏎️",
     layout="wide"
 )
-st.image(
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRclSfIAigcoLVcjTJ8fNbRM73V5JC3Vs-HAuzpq7Nr_g&s=10",
-    use_container_width=True
-)
 
 # Load saved model bundle
 @st.cache_resource
