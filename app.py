@@ -9,6 +9,11 @@ st.set_page_config(
     page_icon="🏎️",
     layout="wide"
 )
+st.image(
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRclSfIAigcoLVcjTJ8fNbRM73V5JC3Vs-HAuzpq7Nr_g&s=10",
+    use_container_width=True
+)
+
 
 # Load saved model bundle
 @st.cache_resource
@@ -28,6 +33,12 @@ page = st.sidebar.radio(
         "Cluster Analysis",
         "About Project"
     ]
+
+    st.image(
+    "https://static01.nyt.com/images/2026/03/02/multimedia/02sp-preview-year-inyt-vhzq/02sp-preview-year-inyt-vhzq-articleLarge.jpg?quality=75&auto=avif&disable=upscale",
+    width="stretch"
+)
+
 )
 
 # HOME PAGE
