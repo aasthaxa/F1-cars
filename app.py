@@ -37,6 +37,7 @@ page = st.sidebar.radio(
     [
         "Home",
         "Podium Prediction",
+        "Model Evaluation Hub",
         "Data Correlation & Heatmap",
         "Decision Tree Structure",
         "Unsupervised Clusters"
@@ -107,7 +108,7 @@ elif page == "Podium Prediction":
         st.subheader("📢 Prediction Analysis & Interpretation")
         st.markdown(f"**Model Used:** {selected_model}")
         if grid <= 3:
-            st.write("💡 **Insight:** Since you are starting in grid position **{grid}**, you are starting in the top rows. Historically, this highly correlates with staying on the podium, showing a high probability of success.")
+            st.write(f"💡 **Insight:** Since you are starting in grid position **{grid}**, you are starting in the top rows. Historically, this highly correlates with staying on the podium, showing a high probability of success.")
         else:
             st.write(f"💡 **Insight:** Starting from grid position **{grid}** means you are in the midfield or back. Midfield grid starts require robust pit-stop strategies and car performance to fight for a podium spot, hence a lower probability.")
 
@@ -117,12 +118,12 @@ elif page == "Podium Prediction":
         if selected_model == "KNN":
             st.subheader("🔍 Unsupervised Cluster Alignment for KNN")
             st.write("Because you predicted using **K-Nearest Neighbors (KNN)**, we mapped your current feature state through our K-Means clustering space to locate driver segments:")
-            
+
             # Project input using SVD
             reduced_input = bundle['svd'].transform(processed)
             cluster_pred = bundle['kmeans'].predict(reduced_input)[0]
             st.info(f"📍 Your input belongs to **Cluster {cluster_pred}**.")
-            
+
             fig, ax = plt.subplots(figsize=(8, 4))
             ax.axvline(reduced_input[0, 0], color='red', linestyle='--', label='Your Driver State')
             ax.set_title("Dimensional projection of your input on SVD Space")
@@ -131,12 +132,46 @@ elif page == "Podium Prediction":
             ax.legend()
             st.pyplot(fig)
 
+# MODEL EVALUATION HUB PAGE
+elif page == "Model Evaluation Hub":
+    st.title("📊 Complete Model Performance Hub")
+    st.write("Inspect metrics like ROC-AUC, F1-score, Precision, and Recall across all trained algorithms.")
+
+    if results_df is not None:
+        st.subheader("=== COMPREHENSIVE PERFORMANCE METRICS ===")
+        st.dataframe(results_df.sort_values(by='F1 Score', ascending=False), use_container_width=True)
+
+        # Auto-identify Best Model
+        best_idx = results_df['F1 Score'].idxmax()
+        best_row = results_df.loc[best_idx]
+        
+        st.success(f"🏆 **BEST PERFORMING MODEL (by F1-Score):** {best_row['Model']} | **F1-Score:** {best_row['F1 Score']:.4f} | **ROC-AUC:** {best_row['ROC-AUC']:.4f}")
+
+        st.subheader("F1 Score and ROC-AUC Visual Comparison")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**F1 Score (Balanced Metric)**")
+            st.bar_chart(results_df.set_index("Model")["F1 Score"])
+        with col2:
+            st.write("**ROC-AUC (Discriminative Power)**")
+            st.bar_chart(results_df.set_index("Model")["ROC-AUC"])
+    else:
+        st.warning("Model metrics comparison file not found.")
+
+    st.markdown("""
+    ### 📢 Comparative Model Analysis
+    
+    * **KNN (K-Nearest Neighbors):** High accuracy (~87.1%), but struggles with poor Recall on minority classes like Podiums.
+    * **Decision Tree:** Provides a clear rule-based breakdown. Has the highest Recall (~88.9%) but suffers from low Precision, signaling many false predictions.
+    * **Artificial Neural Network (ANN):** Best model for high precision (~61.1%) and lowest false positive rates.
+    * **SVM & Ensemble Bagging:** The overall top balanced choice with the highest F1-Scores (~0.53) and solid ROC-AUC (~0.88 - 0.90).
+    """)
+
 # DATA CORRELATION & HEATMAP PAGE
 elif page == "Data Correlation & Heatmap":
     st.title("📊 Data Correlation Heatmap")
     st.write("This view explains the linear relationships between features in the F1 dataset.")
 
-    # Display heatmaps as requested
     fig, ax = plt.subplots(figsize=(8, 6))
     corr_data = pd.DataFrame({
         'grid': [1, 5, 7, 11, 3],
@@ -144,11 +179,9 @@ elif page == "Data Correlation & Heatmap":
         'driverId': [1, 2, 3, 4, 5],
         'constructorId': [1, 2, 3, 4, 1],
         'podium': [1, 1, 1, 0, 0]
-    }).corr()  # Static reference fallback visualization
-    
-    # Use real correlation values if data is accessible
+    }).corr()
+
     try:
-        import pandas as pd
         real_df = pd.read_csv('/content/results.csv')
         real_df['podium'] = np.where(real_df['positionOrder'] <= 3, 1, 0)
         corr_data = real_df[['grid', 'raceId', 'driverId', 'constructorId', 'podium']].corr()
@@ -169,10 +202,9 @@ elif page == "Data Correlation & Heatmap":
 elif page == "Decision Tree Structure":
     st.title("🌲 Decision Tree Structure & Feature Importance")
     st.write("Visualize how our Decision Tree model segments our features to find the splits:")
-    
-    # Decision Tree diagram illustration
+
     st.image("https://i.imgur.com/z-PGIt5mZ1ab.png", caption="Decision Tree Split Hierarchies (Top 15 Features)", width=600, use_container_width=True)
-    
+
     st.subheader("Decision Tree Feature Importances")
     importance_mock = pd.DataFrame({
         'Feature': ['num__grid', 'num__raceId', 'cat__constructorId_6', 'cat__driverId_1', 'cat__driverId_360'],
