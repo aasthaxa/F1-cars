@@ -5,17 +5,13 @@ import joblib
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.tree import plot_tree
 
 st.set_page_config(
     page_title="F1 Analytics Dashboard",
     page_icon="🏎️",
     layout="wide"
 )
-st.image(
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRclSfIAigcoLVcjTJ8fNbRM73V5JC3Vs-HAuzpq7Nr_g&s=10",
-    use_container_width=True
-)
-
 
 # Load saved model bundle
 @st.cache_resource
@@ -208,7 +204,21 @@ elif page == "Decision Tree Structure":
     st.title("🌲 Decision Tree Structure & Feature Importance")
     st.write("Visualize how our Decision Tree model segments our features to find the splits:")
 
-    st.image("https://i.imgur.com/z-PGIt5mZ1ab.png", caption="Decision Tree Split Hierarchies (Top 15 Features)", width=600, use_container_width=True)
+    # Render the Decision Tree dynamically instead of using a broken image URL
+    if 'Decision Tree' in bundle['models']:
+        st.subheader("Interactive Decision Tree Rules")
+        fig_tree, ax_tree = plt.subplots(figsize=(16, 8))
+        plot_tree(
+            bundle['models']['Decision Tree'],
+            max_depth=3,
+            filled=True,
+            fontsize=7,
+            ax=ax_tree
+        )
+        ax_tree.set_title("Decision Tree Split Hierarchies (Max Depth = 3)")
+        st.pyplot(fig_tree)
+    else:
+        st.warning("Decision Tree estimator not found in joblib bundle.")
 
     st.subheader("Decision Tree Feature Importances")
     importance_mock = pd.DataFrame({
