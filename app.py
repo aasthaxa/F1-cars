@@ -23,24 +23,25 @@ def load_model():
 bundle = load_model()
 
 # Navigation
+# Navigation
 st.sidebar.title("🏎️ F1 Analytics")
 page = st.sidebar.radio(
     "Navigation",
     [
-        
-    st.image(
-    "https://static01.nyt.com/images/2026/03/02/multimedia/02sp-preview-year-inyt-vhzq/02sp-preview-year-inyt-vhzq-articleLarge.jpg?quality=75&auto=avif&disable=upscale",
-    width="stretch"
-)
         "Home",
         "Podium Prediction",
         "Model Comparison & Correlation",
         "Cluster Analysis",
         "About Project"
     ]
-
-
 )
+
+if page == "Home":
+    st.image(
+        "https://static01.nyt.com/images/2026/03/02/multimedia/02sp-preview-year-inyt-vhzq/02sp-preview-year-inyt-vhzq-articleLarge.jpg?quality=75&auto=avif&disable=upscale",
+        width="stretch"
+    )
+
 
 # HOME PAGE
 if page == "Home":
